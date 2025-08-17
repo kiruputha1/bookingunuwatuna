@@ -12,12 +12,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Bell, Search, User, LogOut, Settings } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 
 export default function AdminHeader() {
   const [searchQuery, setSearchQuery] = useState("")
   const router = useRouter()
-  const supabase = createClient()
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
