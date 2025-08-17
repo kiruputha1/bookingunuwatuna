@@ -1,8 +1,8 @@
-import { createServerClient } from "./supabase/server"
+import { createSupabaseClient } from "./supabase/server"
 import bcrypt from "bcryptjs"
 
 export async function createAdminUser(email: string, password: string, fullName: string) {
-  const supabase = createServerClient()
+  const supabase = createSupabaseClient()
 
   // Hash the password
   const passwordHash = await bcrypt.hash(password, 12)
@@ -27,7 +27,7 @@ export async function createAdminUser(email: string, password: string, fullName:
 }
 
 export async function verifyAdminUser(email: string, password: string) {
-  const supabase = createServerClient()
+  const supabase = createSupabaseClient()
 
   // Get admin user by email
   const { data: user, error } = await supabase.from("admin_users").select("*").eq("email", email).single()
