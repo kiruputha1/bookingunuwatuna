@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -37,6 +37,12 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Added tourism-specific color variables */
+  --tourism-teal: oklch(0.6 0.15 180);
+  --tourism-coral: oklch(0.7 0.15 25);
+  --tourism-gold: oklch(0.8 0.12 85);
+  --tourism-navy: oklch(0.25 0.08 240);
 }
 
 .dark {
@@ -111,6 +117,16 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Added tourism color utilities */
+  --color-tourism-teal: var(--tourism-teal);
+  --color-tourism-coral: var(--tourism-coral);
+  --color-tourism-gold: var(--tourism-gold);
+  --color-tourism-navy: var(--tourism-navy);
+
+  /* Added font variables for tourism design */
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
 }
 
 @layer base {
@@ -120,4 +136,30 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Added custom tourism utility classes */
+.text-tourism-teal {
+  color: var(--color-tourism-teal);
+}
+.text-tourism-coral {
+  color: var(--color-tourism-coral);
+}
+.text-tourism-gold {
+  color: var(--color-tourism-gold);
+}
+.text-tourism-navy {
+  color: var(--color-tourism-navy);
+}
+.bg-tourism-teal {
+  background-color: var(--color-tourism-teal);
+}
+.bg-tourism-coral {
+  background-color: var(--color-tourism-coral);
+}
+.bg-tourism-gold {
+  background-color: var(--color-tourism-gold);
+}
+.bg-tourism-navy {
+  background-color: var(--color-tourism-navy);
 }
