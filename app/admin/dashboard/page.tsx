@@ -1,8 +1,8 @@
-import { createServerClient } from "@/lib/supabase/server"
+import { createSupabaseClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import AdminDashboard from "@/components/admin-dashboard"
 
-export default async function AdminDashboardPage() {
+export default async function AdminPage() {
   const supabase = createServerClient()
 
   const {
