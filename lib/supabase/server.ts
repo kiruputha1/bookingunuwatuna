@@ -1,10 +1,27 @@
-import { createClient } from "@supabase/supabase-js"
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
+import { cookies } from "next/headers"
+import { cache } from "react"
 import type { Database } from "./client"
 
-export function createServerClient() {
-  return createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
-}
+// Check if Supabase environment variables are available
+export const isSupabaseConfigured =
+  typeof process.env.NEXT_PUBLIC_SUPABASE_URL === "string" &&
+  process.env.NEXT_PUBLIC_SUPABASE_URL.length > 0 &&
+  typeof process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === "string" &&
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 0
 
-export function createClientServer() {
-  return createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
-}
+export const createSupabaseClient = cache(() => {
+  const cookieStore = cookies()
+
+  if (!isSupabaseConfigured) {
+    console.warn("Supabase environment variables are not set. Using dummy client.")
+    return {
+      auth: {
+        getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+        getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+      },
+    }
+  }
+
+  return createServerComponentClient<Database>({ cookies: () => cookieStore })
+})

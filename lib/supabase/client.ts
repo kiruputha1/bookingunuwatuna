@@ -1,9 +1,13 @@
-import { createClient } from "@supabase/supabase-js"
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+// Check if Supabase environment variables are available
+export const isSupabaseConfigured =
+  typeof process.env.NEXT_PUBLIC_SUPABASE_URL === "string" &&
+  process.env.NEXT_PUBLIC_SUPABASE_URL.length > 0 &&
+  typeof process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === "string" &&
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 0
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClientComponentClient()
 
 export type Database = {
   public: {
@@ -213,7 +217,6 @@ export type Database = {
           tags?: string[] | null
           published_at?: string | null
           created_at?: string
-          updated_at?: string
           updated_at?: string
         }
       }

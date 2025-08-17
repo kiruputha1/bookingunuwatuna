@@ -1,64 +1,49 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useActionState } from "react"
+import { useFormStatus } from "react-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Eye, EyeOff, Lock, Mail } from "lucide-react"
-import { supabase } from "@/lib/supabase/client"
+import { Eye, EyeOff, Lock, Mail, Loader2 } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { signIn } from "@/lib/actions"
 
-export default function AdminLoginForm() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
-  const router = useRouter()
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
-
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-
-      if (error) {
-        setError(error.message)
-        return
-      }
-
-      if (data.user) {
-        const { data: adminUser } = await supabase.from("admin_users").select("role").eq("email", email).single()
-
-        if (!adminUser || (adminUser.role !== "admin" && adminUser.role !== "super_admin")) {
-          setError("Access denied. Admin privileges required.")
-          await supabase.auth.signOut()
-          return
-        }
-
-        router.push("/admin/dashboard")
-        router.refresh()
-      }
-    } catch (err) {
-      setError("An unexpected error occurred")
-    } finally {
-      setIsLoading(false)
-    }
-  }
+function SubmitButton() {
+  const { pending } = useFormStatus()
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
+    <Button type="submit" disabled={pending} className="w-full bg-tourism-teal hover:bg-tourism-teal/90 text-white">
+      {pending ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Signing in...
+        </>
+      ) : (
+        "Sign In"
+      )}
+    </Button>
+  )
+}
+
+export default function AdminLoginForm() {
+  const [showPassword, setShowPassword] = useState(false)
+  const router = useRouter()
+  const [state, formAction] = useActionState(signIn, null)
+
+  useEffect(() => {
+    if (state?.success) {
+      router.push("/admin/dashboard")
+    }
+  }, [state, router])
+
+  return (
+    <form action={formAction} className="space-y-6">
+      {state?.error && (
         <Alert className="border-red-200 bg-red-50">
-          <AlertDescription className="text-red-800">{error}</AlertDescription>
+          <AlertDescription className="text-red-800">{state.error}</AlertDescription>
         </Alert>
       )}
 
@@ -68,15 +53,7 @@ export default function AdminLoginForm() {
         </Label>
         <div className="relative">
           <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="admin@example.com"
-            className="pl-10"
-            required
-          />
+          <Input id="email" name="email" type="email" placeholder="admin@tourism.com" className="pl-10" required />
         </div>
       </div>
 
@@ -88,9 +65,8 @@ export default function AdminLoginForm() {
           <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
             id="password"
+            name="password"
             type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
             className="pl-10 pr-10"
             required
@@ -105,13 +81,16 @@ export default function AdminLoginForm() {
         </div>
       </div>
 
-      <Button type="submit" className="w-full bg-tourism-teal hover:bg-tourism-teal/90 text-white" disabled={isLoading}>
-        {isLoading ? "Signing in..." : "Sign In"}
-      </Button>
+      <SubmitButton />
 
       <div className="text-center text-sm text-gray-600">
-        <p>Demo Admin Credentials:</p>
-        <p className="font-mono text-xs mt-1">admin@tourism.com / admin123</p>
+        <p>
+          First, create an account at{" "}
+          <a href="/auth/sign-up" className="text-tourism-teal hover:underline">
+            /auth/sign-up
+          </a>
+        </p>
+        <p className="text-xs mt-1">Then use those credentials here</p>
       </div>
     </form>
   )
